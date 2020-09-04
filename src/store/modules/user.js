@@ -77,11 +77,16 @@ const user = {
       commit
     }, userInfo) {
       const username = userInfo.username.trim()
+
+      //Promise的用法是一个构造函数，这个构造函数里有两个参数，分别是：resolve（成功之后的回调函数）、reject（失败之后的回调函数）。
       return new Promise((resolve, reject) => {
+        //response即响应对象
         login(username, userInfo.password).then(response => {
           const data = response
           setToken(data.access_token)
+          //保存对状态的更改
           commit('SET_TOKEN', data.access_token)
+          //执行resolve  这里
           resolve()
         }).catch(error => {
           reject(error)

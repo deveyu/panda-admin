@@ -24,6 +24,9 @@ export default {
       type: Boolean,
       default: true
     },
+    /*接收父组件数据；疑问上面的这些autoResize，height父组件并没有传给他，难道是别的父组件给他的？
+
+    * */
     chartData: {
       type: Object,
       required: true

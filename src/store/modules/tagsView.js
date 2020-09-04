@@ -1,7 +1,7 @@
 const tagsView = {
   state: {
     visitedViews: [],
-    cachedViews: []
+    cachedViews: []//被appmain组件获取
   },
   mutations: {
     ADD_VISITED_VIEWS: (state, view) => {

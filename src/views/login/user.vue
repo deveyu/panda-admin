@@ -46,6 +46,14 @@ export default {
         callback(new Error('请输入正确的用户名'))
       }
     }
+
+    // function validateUsername(rule, value, callback) {
+    //   if (!isvalidUsername(value)) {
+    //     callback()
+    //   } else {
+    //     callback(new Error('请输入正确的用户名'))
+    //   }
+    // }
     const validatePass = (rule, value, callback) => {
       if (value.length < 5) {
         callback(new Error('密码不能小于5位'))
@@ -94,10 +102,14 @@ export default {
       }
     },
     handleLogin() {
+      //this.$ref代表vue实例
       this.$refs.loginForm.validate(valid => {
         if (valid) {
+
+          //登录成功
           this.loading = true
           this.loginForm.password = this.loginForm.password
+          //
           this.$store.dispatch('Login', this.loginForm).then(() => {
             this.loading = false
             this.$router.push({

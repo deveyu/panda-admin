@@ -1,6 +1,11 @@
 <template>
   <div class="dashboard-editor-container">
 
+
+    <!--这里的意思是：
+    父组件监听子组件panel-group传递给他的handleSetLineChartData事件，来执行相应的方法
+
+    -->
     <panel-group @handleSetLineChartData="handleSetLineChartData" />
 
     <el-row>
@@ -24,6 +29,8 @@
           <div slot="header" class="clearfix">
             <span>访问趋势图</span>
           </div>
+          <!--告诉子组件chart-data为lineChartData,子组件需要在props中定义chart-Data来接收该数据-->
+          <!--chart-Data相当于形参，lineChartData相当于实参-->
           <line-chart :chart-data="lineChartData" />
         </el-card>
       </el-col>

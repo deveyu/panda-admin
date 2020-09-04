@@ -34,6 +34,8 @@
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+
+
       <div class="card-panel" @click="handleSetLineChartData('shoppings')">
         <div class="card-panel-icon-wrapper icon-shopping">
           <svg-icon icon-class="shopping" class-name="card-panel-icon" />
@@ -54,6 +56,11 @@ export default {
     CountTo
   },
   methods: {
+
+
+ // 子组件通过this.$emit('handleSetLineChartData',param1)传递handleSetLineChartData事件给父组件，父组件需要@handleSetLineChartData="method"来接收该事件
+ // 声明接收时，不需要指定参数，做处理时可以定义参数，method(param1){}
+
     handleSetLineChartData(type) {
       this.$emit('handleSetLineChartData', type)
     }

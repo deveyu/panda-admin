@@ -1,9 +1,17 @@
 <template>
   <div class="app-wrapper" :class="classObj">
     <div v-if="device==='mobile'&&sidebar.opened" class="drawer-bg" @click="handleClickOutside"></div>
+
+    <!--sidebar组件主要有el-scrollbar和sidebar-item自定义组件（目的是为了复用）构成-->
     <sidebar class="sidebar-container"></sidebar>
+
+
+
     <div class="main-container">
+
+      <!--导航条，展示用户名，头像-->
       <navbar></navbar>
+      <!--tag标签-->
       <tags-view></tags-view>
       <app-main></app-main>
     </div>

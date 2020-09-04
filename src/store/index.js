@@ -8,6 +8,9 @@ import tagsView from './modules/tagsView'
 
 Vue.use(Vuex)
 
+//全局对象
+// store
+
 const store = new Vuex.Store({
   modules: {
     app,

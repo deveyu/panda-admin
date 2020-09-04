@@ -25,6 +25,7 @@ export const constantRouterMap = [
   { path: '/login', component: () => import('@/views/login/index'), hidden: true },
   { path: '/404', component: () => import('@/views/404'), hidden: true },
 
+  //这里的dashboard为什么没有变为layout的子组件
   {
     path: '/',
     component: Layout,

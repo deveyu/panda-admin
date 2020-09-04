@@ -13,7 +13,6 @@ export function login(username, password) {
     grant_type: grantType
   })
   return request({
-
     url: '/auth/oauth/token',
     method: 'post',
     data: param
