@@ -1,0 +1,253 @@
+<template>
+  <div>
+    <!--搜索-->
+    <div class="search-container">
+      <div class="search-inp-container">
+        <el-input @keyup.enter.native="handleSearch" placeholder="" v-model="listQuery.username" clearable>
+        </el-input>
+      </div>
+      <el-button class="search-btn" type="primary" icon="el-icon-search" @click="handleSearch">查询</el-button>
+      <el-button class="search-btn" type="primary" icon="el-icon-plus" @click="handleAdd">添加</el-button>
+      <el-button class="search-btn" :autofocus="true" icon="el-icon-refresh" @click="refreshHandle">刷新</el-button>
+    </div>
+    <!--table-->
+    <el-table :key='tableKey' :data="list" v-loading="listLoading" border fit highlight-current-row>
+      <el-table-column align="center" prop="id" label="id" width="80">
+      </el-table-column>
+      <el-table-column align="center" prop="name" label="商品名" width="180">
+      </el-table-column>
+      <el-table-column align="center" prop="brandName" label="品牌">
+      </el-table-column>
+      <el-table-column align="center" prop="categoryName" label="分类">
+      </el-table-column>
+      <el-table-column align="center" label="创建时间">
+        <template slot-scope="scope">
+          <span>{{scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="操作" width="180" v-if=" item_goods_update  ||  item_goods_delete ">
+        <template slot-scope="scope">
+          <el-button v-if="item_goods_update" size="mini" type="primary" @click="handleEdit(scope.row)">编辑
+          </el-button>
+          <el-button v-if="item_goods_delete" size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+          <el-button v-if="item_goods_delete" size="mini" type="danger" @click="handleUp(scope.row)">上架</el-button>
+          <el-button v-if="item_goods_delete" size="mini" type="danger" @click="handleDown(scope.row)">下架</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <!--分页控制-->
+    <div v-show="!listLoading" class="pagination-container">
+      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                     :current-page.sync="listQuery.current" :page-size="listQuery.size" :page-sizes="[10, 40, 80, 100]"
+                     layout="total, sizes, prev, pager, next, jumper" :total="total">
+      </el-pagination>
+    </div>
+  </div>
+</template>
+
+<script>
+  import {fetchList, delObj, getObj, addObj, putObj} from '@/api/goods'
+  import {mapGetters} from 'vuex'
+
+  export default {
+    data() {
+      return {
+        tableKey: 0,
+        listLoading: false,
+        list: [],
+        listQuery: {
+          current: 1,
+          size: 10,
+          username: ''
+        },
+        total: 0,
+        item_goods_add: false,
+        item_goods_update: false,
+        item_goods_delete: false,
+        item_goods_select: false,
+        dialogFormVisible: false,
+        form: {
+          name: undefined,
+          image: undefined,
+          letter: undefined
+        },
+        role: [],
+        rolesOptions: [],
+        isDisabled: {
+          0: false,
+          1: true
+        },
+        statusOptions: ['0', '1'],
+        dialogDeptVisible: false,
+        treeDeptData: [],
+        checkedKeys: [],
+        defaultProps: {
+          children: 'childrens',
+          label: 'name'
+        }
+      }
+    },
+
+    components: {},
+    filters: {
+      statusFilter(status) {
+        const statusMap = {
+          0: '有效',
+          1: '无效',
+          9: '锁定'
+        }
+        return statusMap[status]
+      }
+    },
+    computed: {
+      ...mapGetters(['permissions'])
+    },
+
+    mounted() {
+      this.getList()
+      this.item_goods_add = this.permissions['/item/goods:add']
+      this.item_goods_update = this.permissions['/item/goods:update']
+      this.item_goods_delete = this.permissions['/item/goods:delete']
+      this.item_goods_select = this.permissions['/item/goods:select']
+    },
+
+    methods: {
+      getList() {
+        this.listLoading = true
+        this.listQuery.isAsc = false
+        fetchList(this.listQuery).then(response => {
+          this.list = response.data.records
+          this.total = response.data.total
+          this.listLoading = false
+        })
+      },
+      refreshHandle() {
+        this.listQuery.current = 1
+        this.listQuery.size = 10
+        this.listQuery.username = ''
+        this.getList()
+      },
+      handleAdd() {
+        this.dialogStatus = 'create'
+        // this.getRoleList()
+        this.dialogFormVisible = true
+      },
+      handleDelete(row) {
+        this.$confirm(
+          '此操作将永久删除该品牌(品牌名:' + row.name + '), 是否继续?',
+          '提示',
+          {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }
+        ).then(() => {
+          delObj(row.userId)
+            .then(() => {
+              this.getList()
+              this.$notify({
+                title: '成功',
+                message: '删除成功',
+                type: 'success',
+                duration: 2000
+              })
+            })
+            .cache(() => {
+              this.$notify({
+                title: '失败',
+                message: '删除失败',
+                type: 'error',
+                duration: 2000
+              })
+            })
+        })
+      },
+      handleEdit(row) {
+        this.dialogStatus = 'update'
+        // this.getRoleList()
+        getObj(row.userId).then(response => {
+          this.form = response.data
+          this.dialogFormVisible = true
+          this.dialogStatus = 'update'
+          this.role = []
+          for (var i = 0; i < row.sysRoleVoList.length; i++) {
+            this.role[i] = row.sysRoleVoList[i].roleId
+          }
+          this.dialogFormVisible = true
+        })
+      },
+      handleDown(row) {
+
+      },
+      handleUp(row) {
+
+      },
+      handleSearch() {
+        this.listQuery.current = 1
+        this.getList()
+      },
+      handleSizeChange(val) {
+        this.listQuery.size = val
+        this.getList()
+      },
+      handleCurrentChange(val) {
+        this.listQuery.current = val
+        this.getList()
+      },
+      create(formName) {
+        const set = this.$refs
+        this.bindRoleInfo()
+        set[formName].validate(valid => {
+          if (valid) {
+            addObj(this.form).then(() => {
+              this.dialogFormVisible = false
+              this.getList()
+              this.$notify({
+                title: '成功',
+                message: '创建成功',
+                type: 'success',
+                duration: 2000
+              })
+            })
+          } else {
+            return false
+          }
+        })
+      },
+      cancel(formName) {
+        this.dialogFormVisible = false
+        this.$refs[formName].resetFields()
+      },
+      update(formName) {
+        const set = this.$refs
+        this.bindRoleInfo()
+        set[formName].validate(valid => {
+          if (valid) {
+            this.dialogFormVisible = false
+            this.form.password = undefined
+            putObj(this.form).then(() => {
+              this.dialogFormVisible = false
+              this.getList()
+              this.$notify({
+                title: '成功',
+                message: '修改成功',
+                type: 'success',
+                duration: 2000
+              })
+            })
+          } else {
+            return false
+          }
+        })
+      },
+    }
+  }
+
+</script>
+
+
+<style lang='scss' scoped>
+  .w347 {
+    width: 100%;
+  }
+</style>
