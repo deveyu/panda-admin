@@ -1,7 +1,7 @@
 import request from '@/utils/request'
 export function fetchList(query) {
   return request({
-    url: '/item/spec/of/',
+    url: '/item/spec/group/of/category',
     method: 'get',
     params: query
   })

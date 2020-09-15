@@ -9,7 +9,7 @@ export function fetchList(query) {
 // 重命名防冲突
 export function fetchCategory(query) {
   return request({
-    url: '/item/category/page',
+    url: '/item/category/tree/all',
     method: 'get',
     params: query
   })

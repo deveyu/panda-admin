@@ -38,36 +38,6 @@
                      layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
-<!--目前不做分类添加和修改-->
-<!--    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="40%">
-      <el-form :model="form" :rules="rules" ref="form" label-width="100px">
-        <el-form-item label="品牌名" prop="name">
-          <el-input class="w347" v-model="form.name" placeholder="请输入品牌名"></el-input>
-        </el-form-item>
-        <el-form-item label="商标" prop="name">
-          <el-upload
-            class="upload-demo"
-            drag
-            action=""
-            multiple>
-            <i class="el-icon-upload"></i>
-            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-            <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
-          </el-upload>
-        </el-form-item>
-
-
-        <el-form-item label="首字母" prop="mobile">
-          <el-input class="w347" v-model="form.letter" placeholder="请输入首字母"></el-input>
-        </el-form-item>
-
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="cancel('form')">取 消</el-button>
-        <el-button v-if="dialogStatus=='create'" type="primary" @click="create('form')">确 定</el-button>
-        <el-button v-else type="primary" @click="update('form')">修 改</el-button>
-      </div>
-    </el-dialog>-->
   </div>
 </template>
 
@@ -91,8 +61,6 @@
         item_category_update: false,
         item_category_delete: false,
         item_category_select: false,
-        dialogFormVisible: false,
-        dialogStatus: '',
         role: [],
         rolesOptions: [],
         isDisabled: {
