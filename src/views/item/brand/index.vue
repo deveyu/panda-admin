@@ -308,6 +308,16 @@
           }
         })
       },
+      bindRoleInfo() {
+        this.form.role = []
+        this.role.forEach(roleId => {
+          const roleInfo = {
+            roleId: roleId
+          }
+          this.form.role.push(roleInfo)
+        })
+        this.form.sysRoleVoList = this.form.role
+      },
     }
   }
 
