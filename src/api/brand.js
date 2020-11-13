@@ -20,6 +20,7 @@ export function getObj(id) {
     method: 'get'
   })
 }
+
 export function putObj(obj) {
   return request({
     url: '/item/brand',
@@ -27,6 +28,7 @@ export function putObj(obj) {
     data: obj
   })
 }
+
 export function addObj(obj) {
   return request({
     url: '/item/brand',
@@ -34,3 +36,16 @@ export function addObj(obj) {
     data: obj
   })
 }
+
+export function uploadImage(file) {
+  const formData = new FormData()
+  formData.append('file', file.file)
+  return request({
+    url: '/item/brand/imageUpload',
+    method: 'post',
+    data: formData
+  })
+}
+
+
+

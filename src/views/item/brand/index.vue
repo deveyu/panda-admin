@@ -53,21 +53,22 @@
           <el-input class="w347" v-model="form.name" placeholder="请输入品牌名"></el-input>
         </el-form-item>
         <el-form-item label="商标" prop="name">
+          <!-- todo-->
           <el-upload
-            class="upload-demo"
-            drag
+            class="avatar-uploader"
             action=""
-            multiple>
-            <i class="el-icon-upload"></i>
-            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
-            <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
+            :http-request="uploadImage"
+            :show-file-list="false"
+            :on-success="handleAvatarSuccess"
+            :before-upload="beforeAvatarUpload">
+            <img v-if="imageUrl" :src="imageUrl" class="avatar">
+            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
         </el-form-item>
 
-
-        <el-form-item label="首字母" prop="mobile">
-          <el-input class="w347" v-model="form.letter" placeholder="请输入首字母"></el-input>
-        </el-form-item>
+          <el-form-item label="首字母" prop="mobile">
+            <el-input class="w347" v-model="form.letter" placeholder="请输入首字母"></el-input>
+          </el-form-item>
 
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -80,12 +81,13 @@
 </template>
 
 <script>
-  import { fetchList, delObj, getObj, addObj, putObj } from '@/api/brand'
-  import { mapGetters } from 'vuex'
+  import {fetchList, delObj, getObj, addObj, putObj} from '@/api/brand'
+  import {mapGetters} from 'vuex'
 
   export default {
     data() {
       return {
+        imageUrl: '',
         tableKey: 0,
         listLoading: false,
         list: [],
@@ -318,6 +320,24 @@
         })
         this.form.sysRoleVoList = this.form.role
       },
+      //
+
+
+      handleAvatarSuccess(res, file) {
+        this.imageUrl = URL.createObjectURL(file.raw);
+      },
+      beforeAvatarUpload(file) {
+        const isJPG = file.type === 'image/jpeg';
+        const isLt2M = file.size / 1024 / 1024 < 2;
+
+        if (!isJPG) {
+          this.$message.error('上传头像图片只能是 JPG 格式!');
+        }
+        if (!isLt2M) {
+          this.$message.error('上传头像图片大小不能超过 2MB!');
+        }
+        return isJPG && isLt2M;
+      }
     }
   }
 
