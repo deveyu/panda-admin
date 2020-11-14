@@ -57,7 +57,7 @@
           <el-upload
             class="avatar-uploader"
             action=""
-            :http-request="uploadImage"
+            :http-request="upload"
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload">
@@ -80,8 +80,36 @@
   </div>
 </template>
 
+<style scoped>
+  .avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+  }
+
+</style>
+
 <script>
   import {fetchList, delObj, getObj, addObj, putObj} from '@/api/brand'
+  import {uploadImage} from '@/api/brand'
   import {mapGetters} from 'vuex'
 
   export default {
@@ -121,7 +149,7 @@
               trigger: 'blur'
             }
           ],
-          iamge: [
+          image: [
             {
               required: true,
               message: '请上传商标',
@@ -321,22 +349,46 @@
         this.form.sysRoleVoList = this.form.role
       },
       //
-
-
+      upload(file) {
+        uploadImage(file);
+      },
       handleAvatarSuccess(res, file) {
+        console.log("1211111111111111111111111")
+        console.log(res);
+        console.log(file);
+        this.$notify({
+          title: '成功',
+          message: '上传成功！',
+          type: 'success',
+          duration: 1000
+        });
+        this.imageUrl = URL.createObjectURL(file.raw);
+      },
+
+      handleAvatarError(res, file) {
+        console.log("1211111111111111111111111")
+        console.log(res);
+        console.log(file);
+        this.$notify({
+          title: '失败',
+          message: '上传失败！',
+          type: 'error',
+          duration: 1000
+        });
         this.imageUrl = URL.createObjectURL(file.raw);
       },
       beforeAvatarUpload(file) {
-        const isJPG = file.type === 'image/jpeg';
+        //const isJPG = file.type === 'image/jpeg';
         const isLt2M = file.size / 1024 / 1024 < 2;
-
-        if (!isJPG) {
-          this.$message.error('上传头像图片只能是 JPG 格式!');
-        }
+        //
+        // if (!isJPG) {
+        //   this.$message.error('上传头像图片只能是 JPG 格式!');
+        // }
         if (!isLt2M) {
           this.$message.error('上传头像图片大小不能超过 2MB!');
         }
-        return isJPG && isLt2M;
+        // return isJPG && isLt2M;
+        return  isLt2M;
       }
     }
   }

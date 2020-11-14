@@ -1,4 +1,4 @@
-import request from '@/utils/request'
+import request from '@/utils/request' //这里的request不是request.js中的service吗
 export function fetchList(query) {
   return request({
     url: '/item/brand/page',
@@ -41,7 +41,7 @@ export function uploadImage(file) {
   const formData = new FormData()
   formData.append('file', file.file)
   return request({
-    url: '/item/brand/imageUpload',
+    url: '/item/brand/uploadImage',
     method: 'post',
     data: formData
   })
