@@ -90,7 +90,7 @@ export function getList(params) {
 
 
 
-
+img src标签不能直接设置绝对路径，只能使用本前端项目的相对路径
 
 
 

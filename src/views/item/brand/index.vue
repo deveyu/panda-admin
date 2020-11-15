@@ -52,7 +52,8 @@
         <el-form-item label="品牌名" prop="name">
           <el-input class="w347" v-model="form.name" placeholder="请输入品牌名"></el-input>
         </el-form-item>
-        <el-form-item label="商标" prop="name">
+        <el-form-item label="商标" prop="image">
+          <el-input v-model="form.image" v-if="false"></el-input>
           <!-- todo-->
           <el-upload
             class="avatar-uploader"
@@ -61,14 +62,14 @@
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload">
-            <img v-if="imageUrl" :src="imageUrl" class="avatar">
+            <img v-if="form.image" :src="'file:///'+form.image" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
         </el-form-item>
 
-          <el-form-item label="首字母" prop="mobile">
-            <el-input class="w347" v-model="form.letter" placeholder="请输入首字母"></el-input>
-          </el-form-item>
+        <el-form-item label="首字母" prop="mobile">
+          <el-input class="w347" v-model="form.letter" placeholder="请输入首字母"></el-input>
+        </el-form-item>
 
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -88,9 +89,11 @@
     position: relative;
     overflow: hidden;
   }
+
   .avatar-uploader .el-upload:hover {
     border-color: #409EFF;
   }
+
   .avatar-uploader-icon {
     font-size: 28px;
     color: #8c939d;
@@ -99,6 +102,7 @@
     line-height: 178px;
     text-align: center;
   }
+
   .avatar {
     width: 178px;
     height: 178px;
@@ -115,7 +119,7 @@
   export default {
     data() {
       return {
-        imageUrl: '',
+        //imageUrl: '',
         tableKey: 0,
         listLoading: false,
         list: [],
@@ -131,6 +135,7 @@
         item_brand_select: false,
         dialogFormVisible: false,
         form: {
+          id:undefined,
           name: undefined,
           image: undefined,
           letter: undefined
@@ -246,7 +251,7 @@
             type: 'warning'
           }
         ).then(() => {
-          delObj(row.userId)
+          delObj(row.id)
             .then(() => {
               this.getList()
               this.$notify({
@@ -268,17 +273,23 @@
       },
       handleEdit(row) {
         this.dialogStatus = 'update'
-        // this.getRoleList()
-        getObj(row.userId).then(response => {
-          this.form = response.data
-          this.dialogFormVisible = true
-          this.dialogStatus = 'update'
-          this.role = []
-          for (var i = 0; i < row.sysRoleVoList.length; i++) {
-            this.role[i] = row.sysRoleVoList[i].roleId
-          }
-          this.dialogFormVisible = true
-        })
+        //this.getRoleList()
+        console.log(row)
+        this.form.name=row.name
+        this.form.id=row.id
+        this.form.image=row.image
+        this.form.letter=row.letter
+
+        // getObj(row.id).then(response => {
+        //   this.form = response.data
+        //   this.dialogFormVisible = true
+        //   this.dialogStatus = 'update'
+        //   this.role = []
+        //   for (var i = 0; i < row.sysRoleVoList.length; i++) {
+        //     this.role[i] = row.sysRoleVoList[i].roleId
+        //   }
+        // })
+        this.dialogFormVisible = true
       },
       handleSearch() {
         this.listQuery.current = 1
@@ -350,33 +361,29 @@
       },
       //
       upload(file) {
-        uploadImage(file);
+        uploadImage(file).then(response => {
+          this.$notify({
+            title: '成功',
+            message: '上传成功！',
+            type: 'success',
+            duration: 1000
+          });
+          console.log(response);
+          if (response.code === 0) {
+            this.form.image=response.data;
+          }
+        });
       },
+
+      //使用http-request该函数失效
       handleAvatarSuccess(res, file) {
         console.log("1211111111111111111111111")
         console.log(res);
         console.log(file);
-        this.$notify({
-          title: '成功',
-          message: '上传成功！',
-          type: 'success',
-          duration: 1000
-        });
+
         this.imageUrl = URL.createObjectURL(file.raw);
       },
 
-      handleAvatarError(res, file) {
-        console.log("1211111111111111111111111")
-        console.log(res);
-        console.log(file);
-        this.$notify({
-          title: '失败',
-          message: '上传失败！',
-          type: 'error',
-          duration: 1000
-        });
-        this.imageUrl = URL.createObjectURL(file.raw);
-      },
       beforeAvatarUpload(file) {
         //const isJPG = file.type === 'image/jpeg';
         const isLt2M = file.size / 1024 / 1024 < 2;
@@ -388,7 +395,7 @@
           this.$message.error('上传头像图片大小不能超过 2MB!');
         }
         // return isJPG && isLt2M;
-        return  isLt2M;
+        return isLt2M;
       }
     }
   }
