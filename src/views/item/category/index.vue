@@ -1,13 +1,15 @@
 <template>
   <div>
     <div class="search-container">
-      <el-button class="search-btn" type="primary" icon="el-icon-plus" @click="openDialog(undefined)"
-                 v-if="">添加
+      <el-button class="search-btn" type="primary" icon="el-icon-plus" @click="handleAdd(undefined)"
+                 v-if="item_category_add" >添加
       </el-button>
-      <el-button class="search-btn" :autofocus="true" icon="el-icon-refresh" @click="getData">刷新</el-button>
+      <el-button class="search-btn" :autofocus="true" icon="el-icon-refresh" @click="refreshHandle">刷新</el-button>
     </div>
+
+    <!--来自自定义组件tree-table-->
     <tree-table :data="data" :expand-all="expandAll" :columns="columns" border>
-      <el-table-column label="类目id" align="center">
+      <el-table-column label="类目id" align="center" width="200">
         <template slot-scope="scope">
           <span>{{scope.row.id}}</span>
         </template>
@@ -17,65 +19,27 @@
           <span>{{scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="操作" width="180" v-if="item_category_update  || item_category_delete ">
+      <el-table-column align="center" label="操作"  v-if="item_category_update  || item_category_delete ">
         <template slot-scope="scope">
-          <el-button v-if="item_category_update" size="mini" type="primary" @click="handleEdit(scope.row)">编辑
-          </el-button>
-          <el-button v-if="item_category_delete" size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+          <el-button type="primary" size="mini" class="mb5" @click="handleAdd(scope.row.id)" icon="el-icon-plus" v-if="item_category_add"></el-button>
+          <el-button type="success" size="mini" class="ml10" @click="handleEdit(scope.row.id)" icon="el-icon-edit" v-if="item_category_update"></el-button>
+          <el-button type="danger" size="mini" @click="handleDelete(scope.row.id)" icon="el-icon-delete" v-if="item_category_delete"></el-button>
         </template>
       </el-table-column>
     </tree-table>
 
     <!-- 添加菜单信息 -->
-    <el-dialog :title="dialog.title" :visible.sync="dialog.show" :before-close="closeHandle" width="700px"
-               :close-on-click-modal="false">
-      <div class="dialog-container">
-        <el-alert class="alert" title="为方便操作，添加时[权限标识/组件路径]会自动继承父级的资源属性" type="info" center show-icon></el-alert>
-        <el-form ref="resourceForm" :model="dialog.data" :rules="dialog.rules" label-width="80px"
-                 label-position="right">
-          <el-form-item label="资源名称" prop="name">
-            <el-input v-model="dialog.data.name" placeholder="请输入资源名称"></el-input>
-          </el-form-item>
-          <el-form-item label="资源类型" prop="type">
-            <el-select class="form-select" v-model="dialog.data.type" placeholder="请选择资源类型">
-              <el-option label="菜单" value="0"></el-option>
-              <el-option label="按钮" value="1"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="资源链接" prop="path">
-            <el-input v-model="dialog.data.path" placeholder="请输入资源链接"></el-input>
-          </el-form-item>
-          <el-form-item label="资源权限" prop="permission">
-            <el-input v-model="dialog.data.permission" placeholder="请输入资源权限"></el-input>
-          </el-form-item>
-          <el-form-item label="请求url" prop="path">
-            <el-input v-model="dialog.data.url" placeholder="请输入请求url"></el-input>
-          </el-form-item>
-
-          <el-form-item label="请求方法" prop="type">
-            <el-select class="form-select" v-model="dialog.data.method" placeholder="请选择请求方法">
-              <el-option label="GET" value="GET"></el-option>
-              <el-option label="PUT" value="PUT"></el-option>
-              <el-option label="PATCH" value="PATCH"></el-option>
-              <el-option label="DELETE" value="DELETE"></el-option>
-              <el-option label="POST" value="POST"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="组件路径" prop="component">
-            <el-input v-model="dialog.data.component" placeholder="请输入组件路径"></el-input>
-          </el-form-item>
-          <el-form-item label="资源图标" prop="icon">
-            <el-input v-model="dialog.data.icon" placeholder="请输入资源图标"></el-input>
-          </el-form-item>
-          <el-form-item label="排序权重" prop="sort">
-            <el-input v-model="dialog.data.sort" placeholder="请输入排序权重"></el-input>
-          </el-form-item>
-        </el-form>
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="40%">
+      <el-form :model="form" :rules="rules" ref="form" label-width="100px">
+        <el-form-item label="类目名" prop="username">
+          <el-input class="w347" v-model="form.username" placeholder="请输类目名"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancel('form')">取 消</el-button>
+        <el-button v-if="dialogStatus=='create'" type="primary" @click="create('form')">确 定</el-button>
+        <el-button v-else type="primary" @click="update('form')">修 改</el-button>
       </div>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialog.show=false">取消</el-button>
-        <el-button type="primary" @click="submitHandle">保存</el-button>
-      </span>
     </el-dialog>
   </div>
 </template>
@@ -92,44 +56,45 @@
     data() {
       return {
         expandAll: false,
+
+        //todo tree-table展开想为啥单独列出
         columns: [
           {
             text: '类目名称',
-            value: 'name'
+            value: 'name',
+            width: 300
           }
         ],
         data: [],
-        dialog: {
-          title: '添加资源信息',
-          show: false,
-          data: {
-            id: null,
-            name: '',
-            type: null,
-            path: '',
-            permission: '',
-            component: '',
-            icon: '',
-            sort: 100,
-            parentId: -1
-          },
-          rules: {
-            name: [
-              {
-                required: true,
-                message: '资源名称不能为空',
-                trigger: 'blur'
-              }
-            ],
-            type: [
-              {
-                required: true,
-                message: '资源类型不能为空',
-                trigger: 'change'
-              }
-            ]
-          }
+
+        form: {
+          name: undefined,
+          parentId:undefined,
+          isParent:undefined,
+          delFlag: undefined,
         },
+        rules: {
+          name: [
+            {
+              required: true,
+              message: '请输入分类名称',
+              trigger: 'blur'
+            },
+            {
+              min: 3,
+              max: 20,
+              message: '账号长度在 3 到 20 个字符',
+              trigger: 'blur'
+            }
+          ],
+        },
+        textMap: {
+          update: '编辑',
+          create: '创建'
+        },
+        dialogStatus: '',
+        dialogFormVisible: false,
+
         item_category_add: false,
         item_category_update: false,
         item_category_delete: false,
@@ -154,77 +119,20 @@
         const response = await getAllCategory()
         this.data = response.data
       },
-
-      refreshHandle() {
-        this.listQuery.current = 1
-        this.listQuery.size = 10
-        this.listQuery.username = ''
-        this.getList()
-      },
-      handleAdd() {
+      /**
+       * 增
+       */
+      handleAdd(row) {
+        if (row == undefined) {
+          this.form.parentId=0
+        }else{
+          this.form.parentId=row.parentId
+        }
         this.dialogStatus = 'create'
-        // this.getRoleList()
         this.dialogFormVisible = true
-      },
-      handleDelete(row) {
-        this.$confirm(
-          '此操作将永久删除该分类(类目名:' + row.name + '), 是否继续?',
-          '提示',
-          {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }
-        ).then(() => {
-          delObj(row.userId)
-            .then(() => {
-              this.getList()
-              this.$notify({
-                title: '成功',
-                message: '删除成功',
-                type: 'success',
-                duration: 2000
-              })
-            })
-            .cache(() => {
-              this.$notify({
-                title: '失败',
-                message: '删除失败',
-                type: 'error',
-                duration: 2000
-              })
-            })
-        })
-      },
-      handleEdit(row) {
-        this.dialogStatus = 'update'
-        // this.getRoleList()
-        getObj(row.userId).then(response => {
-          this.form = response.data
-          this.dialogFormVisible = true
-          this.dialogStatus = 'update'
-          this.role = []
-          for (var i = 0; i < row.sysRoleVoList.length; i++) {
-            this.role[i] = row.sysRoleVoList[i].roleId
-          }
-          this.dialogFormVisible = true
-        })
-      },
-      handleSearch() {
-        this.listQuery.current = 1
-        this.getList()
-      },
-      handleSizeChange(val) {
-        this.listQuery.size = val
-        this.getList()
-      },
-      handleCurrentChange(val) {
-        this.listQuery.current = val
-        this.getList()
       },
       create(formName) {
         const set = this.$refs
-        this.bindRoleInfo()
         set[formName].validate(valid => {
           if (valid) {
             addObj(this.form).then(() => {
@@ -242,9 +150,15 @@
           }
         })
       },
-      cancel(formName) {
-        this.dialogFormVisible = false
-        this.$refs[formName].resetFields()
+
+
+      /**
+       * 编辑
+       */
+      handleEdit(row) {
+        this.dialogStatus = 'update'
+        this.form.name=row.name
+        this.dialogFormVisible = true
       },
       update(formName) {
         const set = this.$refs
@@ -252,7 +166,6 @@
         set[formName].validate(valid => {
           if (valid) {
             this.dialogFormVisible = false
-            this.form.password = undefined
             putObj(this.form).then(() => {
               this.dialogFormVisible = false
               this.getList()
@@ -268,6 +181,75 @@
           }
         })
       },
+      /**
+       * 删除
+       * @param row
+       */
+      handleDelete(row) {
+        this.$confirm(
+          '此操作将永久删除该分类(类目名:' + row.name + '), 是否继续?',
+          '提示',
+          {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }
+        ).then(() => {
+          delObj(row.id)
+            .then(() => {
+              this.getData()
+              this.$notify({
+                title: '成功',
+                message: '删除成功',
+                type: 'success',
+                duration: 2000
+              })
+            })
+            //todo cache方法是干嘛的
+            .cache(() => {
+              this.$notify({
+                title: '失败',
+                message: '删除失败',
+                type: 'error',
+                duration: 2000
+              })
+            })
+        })
+      },
+
+
+
+
+
+      cancel(formName) {
+        this.dialogFormVisible = false
+        this.$refs[formName].resetFields()
+      },
+
+
+      refreshHandle() {
+        this.listQuery.current = 1
+        this.listQuery.size = 10
+        this.listQuery.username = ''
+        this.getData()
+      },
+
+
+
+
+      handleSearch() {
+        this.listQuery.current = 1
+        this.getList()
+      },
+      handleSizeChange(val) {
+        this.listQuery.size = val
+        this.getList()
+      },
+      handleCurrentChange(val) {
+        this.listQuery.current = val
+        this.getList()
+      },
+
       async openEditDialog(id) {
         this.dialog.title = '编辑资源信息'
         // 清除dialog中的数据
@@ -315,47 +297,8 @@
           }
         })
       },
-      deleteHandle(id) {
-        this.$confirm('此操作将一并删除其子节点资源，是否继续？', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(async () => {
-          const res = await deleteResourceById(id)
-          if (res.code === 0) {
-            this.$message({
-              message: '删除成功！',
-              type: 'success'
-            })
-            // 重新刷新表格
-            this.getData()
-          } else {
-            this.$message.error('删除失败！')
-          }
-        })
-      },
       closeHandle(done) {
         done()
-      },
-      async openDialog(id) {
-        this.dialog.title = '添加资源信息'
-        // 清除dialog中的数据
-        this.clearDialogData()
-        if (id === '' || id === undefined || id === undefined) {
-          // 代表顶级目录 所以父节点为 -1
-          this.dialog.data.parentId = -1
-          this.dialog.show = true
-        } else {
-          const res = await getResourceById(id)
-          if (res.code === 0) {
-            this.dialog.data.parentId = res.data.id
-            this.dialog.data.component = res.data.component
-            this.dialog.data.permission = res.data.permission
-          } else {
-            this.$message.error('数据载入失败')
-          }
-        }
-        this.dialog.show = true
       },
       clearDialogData() {
         this.dialog.data.id = null

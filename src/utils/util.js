@@ -278,3 +278,9 @@ export const randomLenNum = (len, date) => {
   if (date) random = random + Date.now()
   return random
 }
+
+/**
+ * 对象赋值
+ */
+ export const  listAssign = (target, source) => Object.keys(target).forEach(key => { target[key] = source[key] || target[key]});
+

@@ -62,7 +62,7 @@
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload">
-            <img v-if="form.image" :src="'file:///'+form.image" class="avatar">
+            <img v-if="form.image" :src="form.image" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
           </el-upload>
         </el-form-item>
@@ -126,7 +126,8 @@
         listQuery: {
           current: 1,
           size: 10,
-          username: ''
+          username: '',
+          delFlag:0,
         },
         total: 0,
         item_brand_add: false,
@@ -179,6 +180,8 @@
           update: '编辑',
           create: '创建'
         },
+
+        //新增还是编辑
         dialogStatus: '',
         role: [],
         rolesOptions: [],
@@ -217,7 +220,7 @@
       this.item_brand_add = this.permissions['/item/brand:add']
       this.item_brand_update = this.permissions['/item/brand:update']
       this.item_brand_delete = this.permissions['/item/brand:delete']
-      this.item_brand_select = this.permissions['/item/brand:selete']
+      this.item_brand_select = this.permissions['/item/brand:select']
     },
 
     methods: {
@@ -275,20 +278,12 @@
         this.dialogStatus = 'update'
         //this.getRoleList()
         console.log(row)
+        //todo 待完善
         this.form.name=row.name
         this.form.id=row.id
         this.form.image=row.image
         this.form.letter=row.letter
 
-        // getObj(row.id).then(response => {
-        //   this.form = response.data
-        //   this.dialogFormVisible = true
-        //   this.dialogStatus = 'update'
-        //   this.role = []
-        //   for (var i = 0; i < row.sysRoleVoList.length; i++) {
-        //     this.role[i] = row.sysRoleVoList[i].roleId
-        //   }
-        // })
         this.dialogFormVisible = true
       },
       handleSearch() {
