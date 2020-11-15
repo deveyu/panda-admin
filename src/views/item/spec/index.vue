@@ -54,11 +54,11 @@
                 <span>{{scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
               </template>
             </el-table-column>
-            <el-table-column align="center" label="操作" width="180" v-if="item_spec_update  || item_spec_delete ">
+            <el-table-column align="center" label="操作" width="180" v-if="item_specGroup_update  || item_specGroup_delete ">
               <template slot-scope="scope">
-                <el-button v-if="item_spec_update" size="mini" type="primary" @click="handleEdit(scope.row)">编辑
+                <el-button v-if="item_specGroup_update" size="mini" type="primary" @click="handleEdit(scope.row)">编辑
                 </el-button>
-                <el-button v-if="item_spec_delete" size="mini" type="danger" @click="handleDelete(scope.row)">删除
+                <el-button v-if="item_specGroup_delete" size="mini" type="danger" @click="handleDelete(scope.row)">删除
                 </el-button>
               </template>
             </el-table-column>
@@ -112,10 +112,10 @@ export default {
       expand: true,
 
 
-      item_spec_add: false,
-      item_spec_update: false,
-      item_spec_delete: false,
-      item_spec_select: false,
+      item_specGroup_add: false,
+      item_specGroup_update: false,
+      item_specGroup_delete: false,
+      item_specGroup_select: false,
     }
   },
 
@@ -125,10 +125,10 @@ export default {
 
   mounted() {
     this.getCategory()
-    this.item_spec_add = this.permissions[' item_spec:add']
-    this.item_spec_update = this.permissions[' item_spec:update']
-    this.item_spec_delete = this.permissions[' item_spec:delete']
-    //this.item_spec_select = this.permissions[' item_spec:selete']
+    this.item_specGroup_add = this.permissions['/item/specGroup:add']
+    this.item_specGroup_update = this.permissions['/item/specGroup:update']
+    this.item_specGroup_delete = this.permissions['/item/specGroup:delete']
+    //this.item_spec_select = this.permissions['/item/specGroup:selete']
   },
 
   methods: {
@@ -148,6 +148,52 @@ export default {
       //todo ${}是干什么的
       this.chooseCategoryName = `${data.name}`
       this.getSpecPage()
+    },
+
+
+    handleDelete(row) {
+      this.$confirm(
+        '此操作将永久删除该分类(类目名:' + row.name + '), 是否继续?',
+        '提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
+      ).then(() => {
+        delObj(row.userId)
+          .then(() => {
+            this.getList()
+            this.$notify({
+              title: '成功',
+              message: '删除成功',
+              type: 'success',
+              duration: 2000
+            })
+          })
+          .cache(() => {
+            this.$notify({
+              title: '失败',
+              message: '删除失败',
+              type: 'error',
+              duration: 2000
+            })
+          })
+      })
+    },
+    handleEdit(row) {
+      this.dialogStatus = 'update'
+      // this.getRoleList()
+      getObj(row.userId).then(response => {
+        this.form = response.data
+        this.dialogFormVisible = true
+        this.dialogStatus = 'update'
+        this.role = []
+        for (var i = 0; i < row.sysRoleVoList.length; i++) {
+          this.role[i] = row.sysRoleVoList[i].roleId
+        }
+        this.dialogFormVisible = true
+      })
     },
     //条件查询规格参数
     async getSpecPage() {
