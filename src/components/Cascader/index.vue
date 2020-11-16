@@ -19,7 +19,9 @@
 <script>
   export default {
     props: {
-      value: {type: Array}, // value代表编辑回显时父组件传递进来的分类id;也代表添加时子组件传递给父组件的分类id
+      value: { // value代表编辑回显时父组件传递进来的分类id;也代表添加时子组件传递给父组件的分类id;
+        type: Array
+      },
       options: { // options这个名称来自于父组件:options="categoryData"
         type: Array // 指定传入的类型
       }

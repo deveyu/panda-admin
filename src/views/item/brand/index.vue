@@ -98,6 +98,8 @@
   import { mapGetters } from 'vuex'
   import Cascader from '@/components/Cascader'
 
+
+
   export default {
     components: {// todo 是components不是component
       Cascader
@@ -425,7 +427,7 @@
 
     }
   }
-
+  //todo 待完成品牌对应分类是多对多，一个品牌可以选择多个分类
 </script>
 
 <style lang='scss' scoped>
