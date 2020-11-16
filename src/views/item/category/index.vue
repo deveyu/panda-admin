@@ -2,7 +2,7 @@
   <div>
     <div class="search-container">
       <el-button class="search-btn" type="primary" icon="el-icon-plus" @click="handleAdd(undefined)"
-                 v-if="item_category_add" >添加
+                 v-if="item_category_add">添加
       </el-button>
       <el-button class="search-btn" :autofocus="true" icon="el-icon-refresh" @click="refreshHandle">刷新</el-button>
     </div>
@@ -19,11 +19,14 @@
           <span>{{scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="操作"  v-if="item_category_update  || item_category_delete ">
+      <el-table-column align="center" label="操作" v-if="item_category_update  || item_category_delete ">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" class="mb5" @click="handleAdd(scope.row.id)" icon="el-icon-plus" v-if="item_category_add"></el-button>
-          <el-button type="success" size="mini" class="ml10" @click="handleEdit(scope.row.id)" icon="el-icon-edit" v-if="item_category_update"></el-button>
-          <el-button type="danger" size="mini" @click="handleDelete(scope.row.id)" icon="el-icon-delete" v-if="item_category_delete"></el-button>
+          <el-button type="primary" size="mini" class="mb5" @click="handleAdd(scope.row.id)" icon="el-icon-plus"
+                     v-if="item_category_add"></el-button>
+          <el-button type="success" size="mini" class="ml10" @click="handleEdit(scope.row.id)" icon="el-icon-edit"
+                     v-if="item_category_update"></el-button>
+          <el-button type="danger" size="mini" @click="handleDelete(scope.row.id)" icon="el-icon-delete"
+                     v-if="item_category_delete"></el-button>
         </template>
       </el-table-column>
     </tree-table>
@@ -32,7 +35,7 @@
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="40%">
       <el-form :model="form" :rules="rules" ref="form" label-width="100px">
         <el-form-item label="类目名" prop="username">
-          <el-input class="w347" v-model="form.username" placeholder="请输类目名"></el-input>
+          <el-input class="w347" v-model="form.name" placeholder="请输类目名"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -46,7 +49,7 @@
 <script>
 
   import treeTable from '@/components/TreeTable'
-  import { delObj, getObj, addObj, putObj,getAllCategory} from '@/api/category'
+  import {delObj, getObj, addObj, putObj, getAllCategory} from '@/api/category'
   import {mapGetters} from 'vuex'
 
   export default {
@@ -69,8 +72,8 @@
 
         form: {
           name: undefined,
-          parentId:undefined,
-          isParent:undefined,
+          parentId: undefined,
+          isParent: undefined,
           delFlag: undefined,
         },
         rules: {
@@ -101,9 +104,7 @@
         item_category_select: false,
       }
     },
-    filters: {
-
-    },
+    filters: {},
     computed: {
       ...mapGetters(['permissions'])
     },
@@ -124,9 +125,9 @@
        */
       handleAdd(row) {
         if (row == undefined) {
-          this.form.parentId=0
-        }else{
-          this.form.parentId=row.parentId
+          this.form.parentId = 0
+        } else {
+          this.form.parentId = row.parentId
         }
         this.dialogStatus = 'create'
         this.dialogFormVisible = true
@@ -157,7 +158,7 @@
        */
       handleEdit(row) {
         this.dialogStatus = 'update'
-        this.form.name=row.name
+        this.form.name = row.name
         this.dialogFormVisible = true
       },
       update(formName) {
@@ -218,9 +219,6 @@
       },
 
 
-
-
-
       cancel(formName) {
         this.dialogFormVisible = false
         this.$refs[formName].resetFields()
@@ -230,11 +228,8 @@
       refreshHandle() {
         this.listQuery.current = 1
         this.listQuery.size = 10
-        this.listQuery.username = ''
         this.getData()
       },
-
-
 
 
       handleSearch() {

@@ -52,6 +52,10 @@
         <el-form-item label="品牌名" prop="name">
           <el-input class="w347" v-model="form.name" placeholder="请输入品牌名"></el-input>
         </el-form-item>
+        <el-form-item label="品牌名" prop="cids">
+          <cascader @selectOption="selectOption" :options="categoryData"></cascader>
+        </el-form-item>
+
         <el-form-item label="商标" prop="image">
           <el-input v-model="form.image" v-if="false"></el-input>
           <!-- todo-->
@@ -81,45 +85,20 @@
   </div>
 </template>
 
-<style scoped>
-  .avatar-uploader .el-upload {
-    border: 1px dashed #d9d9d9;
-    border-radius: 6px;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .avatar-uploader .el-upload:hover {
-    border-color: #409EFF;
-  }
-
-  .avatar-uploader-icon {
-    font-size: 28px;
-    color: #8c939d;
-    width: 178px;
-    height: 178px;
-    line-height: 178px;
-    text-align: center;
-  }
-
-  .avatar {
-    width: 178px;
-    height: 178px;
-    display: block;
-  }
-
-</style>
 
 <script>
-  import {fetchList, delObj, getObj, addObj, putObj} from '@/api/brand'
-  import {uploadImage} from '@/api/brand'
-  import {mapGetters} from 'vuex'
+  import { fetchList, delObj, getObj, addObj, putObj } from '@/api/brand'
+  import { getAllCategory } from '@/api/category'
+  import { uploadImage } from '@/api/brand'
+  import { mapGetters } from 'vuex'
+  import Cascader from '@/components/Cascader'
 
   export default {
+    Components: {// todo 是Components不是component
+      Cascader
+    },
     data() {
       return {
-        //imageUrl: '',
         tableKey: 0,
         listLoading: false,
         list: [],
@@ -127,7 +106,7 @@
           current: 1,
           size: 10,
           username: '',
-          delFlag:0,
+          delFlag: 0
         },
         total: 0,
         item_brand_add: false,
@@ -136,7 +115,8 @@
         item_brand_select: false,
         dialogFormVisible: false,
         form: {
-          id:undefined,
+          id: undefined,
+          cids: [],
           name: undefined,
           image: undefined,
           letter: undefined
@@ -181,7 +161,7 @@
           create: '创建'
         },
 
-        //新增还是编辑
+        // 新增还是编辑
         dialogStatus: '',
         role: [],
         rolesOptions: [],
@@ -196,7 +176,9 @@
         defaultProps: {
           children: 'childrens',
           label: 'name'
-        }
+        },
+        // 分类数据
+        categoryData: []
       }
     },
 
@@ -239,10 +221,14 @@
         this.listQuery.username = ''
         this.getList()
       },
-      handleAdd() {
+      async handleAdd() {
         this.dialogStatus = 'create'
         // this.getRoleList()
         this.dialogFormVisible = true
+        // 获取分类数据
+        const response = await getAllCategory()
+        console.log(response.data)
+        // this.categoryData =
       },
       handleDelete(row) {
         this.$confirm(
@@ -276,13 +262,13 @@
       },
       handleEdit(row) {
         this.dialogStatus = 'update'
-        //this.getRoleList()
+        // this.getRoleList()
         console.log(row)
-        //todo 待完善
-        this.form.name=row.name
-        this.form.id=row.id
-        this.form.image=row.image
-        this.form.letter=row.letter
+        // todo 待完善
+        this.form.name = row.name
+        this.form.id = row.id
+        this.form.image = row.image
+        this.form.letter = row.letter
 
         this.dialogFormVisible = true
       },
@@ -362,44 +348,71 @@
             message: '上传成功！',
             type: 'success',
             duration: 1000
-          });
-          console.log(response);
+          })
+          console.log(response)
           if (response.code === 0) {
-            this.form.image=response.data;
+            this.form.image = response.data
           }
-        });
+        })
       },
 
-      //使用http-request该函数失效
+      // 使用http-request该函数失效
       handleAvatarSuccess(res, file) {
-        console.log("1211111111111111111111111")
-        console.log(res);
-        console.log(file);
-
-        this.imageUrl = URL.createObjectURL(file.raw);
+        this.imageUrl = URL.createObjectURL(file.raw)
       },
 
       beforeAvatarUpload(file) {
-        //const isJPG = file.type === 'image/jpeg';
-        const isLt2M = file.size / 1024 / 1024 < 2;
+        // const isJPG = file.type === 'image/jpeg';
+        const isLt2M = file.size / 1024 / 1024 < 2
         //
         // if (!isJPG) {
         //   this.$message.error('上传头像图片只能是 JPG 格式!');
         // }
         if (!isLt2M) {
-          this.$message.error('上传头像图片大小不能超过 2MB!');
+          this.$message.error('上传头像图片大小不能超过 2MB!')
         }
         // return isJPG && isLt2M;
-        return isLt2M;
+        return isLt2M
+      },
+      // 获取子组件的所选的值
+      selectOption(data) {
+        this.form.cids = data
       }
     }
   }
 
 </script>
 
-
 <style lang='scss' scoped>
   .w347 {
     width: 100%;
   }
+
+  .avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+  }
+
+  .avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 178px;
+    height: 178px;
+    line-height: 178px;
+    text-align: center;
+  }
+
+  .avatar {
+    width: 178px;
+    height: 178px;
+    display: block;
+  }
+
 </style>
