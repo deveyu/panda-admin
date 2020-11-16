@@ -24,7 +24,7 @@ npm run build
 
 ## point
 
-
+项目启动报错可能性较大 卸载 然后npm install node-sass
 
 
 

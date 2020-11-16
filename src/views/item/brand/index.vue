@@ -52,8 +52,10 @@
         <el-form-item label="品牌名" prop="name">
           <el-input class="w347" v-model="form.name" placeholder="请输入品牌名"></el-input>
         </el-form-item>
-        <el-form-item label="品牌名" prop="cids">
+        <el-form-item label="分类" prop="cids">
           <cascader @selectOption="selectOption" :options="categoryData"></cascader>
+          <!--          <breadcrumb class="breadcrumb-container"/>-->
+          <!--          <theme-picker></theme-picker>-->
         </el-form-item>
 
         <el-form-item label="商标" prop="image">
@@ -87,14 +89,15 @@
 
 
 <script>
-  import { fetchList, delObj, getObj, addObj, putObj } from '@/api/brand'
+  // @/ 是webpack设置的路径别名，代表什么路径，要看webpack的build文件夹下webpack.base.conf.js里面对于@是如何配置
+  import { fetchList, delObj, addObj, putObj } from '@/api/brand'
   import { getAllCategory } from '@/api/category'
   import { uploadImage } from '@/api/brand'
   import { mapGetters } from 'vuex'
   import Cascader from '@/components/Cascader'
 
   export default {
-    Components: {// todo 是Components不是component
+    components: {// todo 是components不是component
       Cascader
     },
     data() {
@@ -181,8 +184,6 @@
         categoryData: []
       }
     },
-
-    components: {},
     filters: {
       statusFilter(status) {
         const statusMap = {
@@ -228,7 +229,11 @@
         // 获取分类数据
         const response = await getAllCategory()
         console.log(response.data)
-        // this.categoryData =
+        // eslint-disable-next-line no-undef
+        const newJsonObj1 = this.changeTreeDate(response.data, 'value', 'id')
+        const newJsonObj2 = this.changeTreeDate(newJsonObj1, 'label', 'name')
+        console.log(newJsonObj2) // 输入结果见res1_1
+        this.categoryData = newJsonObj2
       },
       handleDelete(row) {
         this.$confirm(
@@ -377,7 +382,20 @@
       // 获取子组件的所选的值
       selectOption(data) {
         this.form.cids = data
+      },
+
+      /**
+       * params date <array> 需要修改的json格式的数组
+       * params newKey <string> 需要修改成的key值
+       * params oldKey <string> 需要被修改的key值
+       */
+      changeTreeDate(zf_jsonObj, newKey, oldKey) {
+        const str = JSON.stringify(zf_jsonObj)
+        const reg = new RegExp(oldKey, 'g')
+        const newStr = str.replace(reg, newKey)
+        return JSON.parse(newStr)
       }
+
     }
   }
 

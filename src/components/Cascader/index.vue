@@ -13,15 +13,13 @@
     <!--//todo :props="{ multiple: true, checkStrictly: true }"-->
     <!--//todo :props="{ expandTrigger: 'hover' }"-->
   </el-cascader>
-
 </template>
 
 <script>
   export default {
-    name: 'Cascader',
     props: {
-      options: {   // options这个名称来自于父组件:options="categoryData"
-        type: Array //指定传入的类型
+      options: { // options这个名称来自于父组件:options="categoryData"
+        type: Array // 指定传入的类型
       }
     },
 
@@ -29,7 +27,7 @@
       return {
         value: [],
         clearable: false,
-        showAllLevels: false
+        showAllLevels: true
       }
     },
     methods: {
