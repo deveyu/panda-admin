@@ -21,6 +21,11 @@
           <img :src="scope.row.image" width="100" height="50"></img>
         </template>
       </el-table-column>
+      <el-table-column align="center" label="分类">
+        <template slot-scope="scope">
+          <span v-for="category in scope.row.categoryList" :key="category.id">{{category.name}} </span>
+        </template>
+      </el-table-column>
       <el-table-column align="center" prop="letter" label="首字母">
       </el-table-column>
       <el-table-column align="center" label="创建时间">
@@ -52,12 +57,9 @@
         <el-form-item label="品牌名" prop="name">
           <el-input class="w347" v-model="form.name" placeholder="请输入品牌名"></el-input>
         </el-form-item>
-        <el-form-item label="分类" prop="cids">
-          <cascader @selectOption="selectOption" :options="categoryData"></cascader>
-          <!--          <breadcrumb class="breadcrumb-container"/>-->
-          <!--          <theme-picker></theme-picker>-->
+        <el-form-item label="分类" ><!--prop="cids"-->
+          <cascader @selectOption="selectOption" :options="categoryData" :value="category"></cascader>
         </el-form-item>
-
         <el-form-item label="商标" prop="image">
           <el-input v-model="form.image" v-if="false"></el-input>
           <!-- todo-->
@@ -117,9 +119,12 @@
         item_brand_delete: false,
         item_brand_select: false,
         dialogFormVisible: false,
+
+        category: [],// 存放单个品牌所有的分类
         form: {
           id: undefined,
           cids: [],
+          categoryList: [],
           name: undefined,
           image: undefined,
           letter: undefined
@@ -226,15 +231,21 @@
         this.dialogStatus = 'create'
         // this.getRoleList()
         this.dialogFormVisible = true
-        // 获取分类数据
-        const response = await getAllCategory()
-        console.log(response.data)
-        // eslint-disable-next-line no-undef
-        const newJsonObj1 = this.changeTreeDate(response.data, 'value', 'id')
-        const newJsonObj2 = this.changeTreeDate(newJsonObj1, 'label', 'name')
-        console.log(newJsonObj2) // 输入结果见res1_1
-        this.categoryData = newJsonObj2
+        this.getCategory()
       },
+       getCategory() {
+        // 获取分类数据
+        const response =  getAllCategory().then(response => {
+          console.log(response.data)
+          // eslint-disable-next-line no-undef
+          const newJsonObj1 = this.changeTreeDate(response.data, 'value', 'id')
+          const newJsonObj2 = this.changeTreeDate(newJsonObj1, 'label', 'name')
+          console.log(newJsonObj2) // 输入结果见res1_1
+          this.categoryData = newJsonObj2
+        })
+
+      },
+
       handleDelete(row) {
         this.$confirm(
           '此操作将永久删除该品牌(品牌名:' + row.name + '), 是否继续?',
@@ -269,12 +280,18 @@
         this.dialogStatus = 'update'
         // this.getRoleList()
         console.log(row)
+        console.log(row.categoryList)
         // todo 待完善
-        this.form.name = row.name
-        this.form.id = row.id
-        this.form.image = row.image
-        this.form.letter = row.letter
-
+        // this.form.name = row.name
+        // this.form.id = row.id
+        // this.form.image = row.image
+        // this.form.letter = row.letter
+        this.form=row
+        this.getCategory()
+        this.category = []
+        for (let i = 0; i <row.categoryList.length ; i++) {
+          this.category[i]=row.categoryList[i].id
+        }
         this.dialogFormVisible = true
       },
       handleSearch() {
@@ -291,7 +308,7 @@
       },
       create(formName) {
         const set = this.$refs
-        this.bindRoleInfo()
+        this.bindCategory()
         set[formName].validate(valid => {
           if (valid) {
             addObj(this.form).then(() => {
@@ -381,7 +398,16 @@
       },
       // 获取子组件的所选的值
       selectOption(data) {
-        this.form.cids = data
+        this.category = data
+      },
+      bindCategory() {
+        this.form.categoryList=[]
+        this.category.forEach(categoryId=>{
+          const cg = {
+            id: categoryId
+          }
+          this.form.categoryList.push(cg)
+        })
       },
 
       /**
@@ -394,7 +420,8 @@
         const reg = new RegExp(oldKey, 'g')
         const newStr = str.replace(reg, newKey)
         return JSON.parse(newStr)
-      }
+      },
+
 
     }
   }
