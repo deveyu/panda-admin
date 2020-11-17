@@ -75,14 +75,19 @@
           </el-upload>
         </el-form-item>
 
+
+        <!--在表单最后的输入框添加（是最后的输入框） @keyup.enter.native="submitForm(‘ruleForm2’) 事件
+        @keyup.enter.native="submit"
+        vue原生的input，使用 @keyup.enter就可以；如果是element-ui，则要加上native限制符，这是由于element-ui把input进行了封装，原事件就不起作用
+        -->
         <el-form-item label="首字母" prop="mobile">
-          <el-input class="w347" v-model="form.letter" placeholder="请输入首字母"></el-input>
+          <el-input class="w347" v-model="form.letter" placeholder="请输入首字母" @keyup.enter.native="create('form')"></el-input>
         </el-form-item>
 
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="cancel('form')">取 消</el-button>
-        <el-button v-if="dialogStatus=='create'" type="primary" @click="create('form')">确 定</el-button>
+        <el-button v-if="dialogStatus=='create'" type="primary" @click="create('form')" >确 定</el-button>
         <el-button v-else type="primary" @click="update('form')">修 改</el-button>
       </div>
     </el-dialog>

@@ -29,8 +29,10 @@
 
     data() {
       return {
-        clearable: false,
-        showAllLevels: true
+        extension:{  // 支持
+          clearable: false,
+          showAllLevels: true
+        }
       }
     },
     methods: {
