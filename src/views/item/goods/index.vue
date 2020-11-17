@@ -41,6 +41,49 @@
                      :current-page.sync="listQuery.current" :page-size="listQuery.size" :page-sizes="[10, 40, 80, 100]"
                      layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
+      <el-dialog title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="40%">
+        <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
+          <el-tab-pane label="基本信息" name="first">
+            <el-form :model="goods" :rules="rules" ref="form" label-width="100px">
+              <el-form-item label="商品分类" >
+                <cascader @selectOption="selectOption" :options="categoryData" :value="category"></cascader>
+              </el-form-item>
+              <el-form-item label="所属品牌" prop="">
+                <el-select class="form-select" v-model="goods.brand" placeholder="">
+                  <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="商品标题" prop="">
+                <el-input class="w347" placeholder="" v-model="goods.title" clearable>
+                </el-input>
+              </el-form-item>
+              <el-form-item label="商品卖点" prop="username">
+                <el-input class="w347" placeholder="" v-model="goods.subTitle" clearable>
+                </el-input>
+              </el-form-item>
+              <el-form-item label="包装清单" prop="username">
+                <el-input class="w347" placeholder="" v-model="goods.spuDetail.packingList" clearable>
+                </el-input>
+              </el-form-item>
+              <el-form-item label="售后服务" prop="username">
+                <el-input class="w347" placeholder="" v-model="goods.spuDetail.afterService" clearable>
+                </el-input>
+              </el-form-item>
+            </el-form>
+          </el-tab-pane>
+          <el-tab-pane label="商品描述" name="second">
+            <el-form :model="form" :rules="rules" ref="form" label-width="100px">
+              <el-form-item label="类目名" prop="username">
+                <el-input class="w347" v-model="form.name" placeholder="请输类目名"></el-input>
+              </el-form-item>
+            </el-form>
+          </el-tab-pane>
+          <el-tab-pane label="角色管理" name="third"></el-tab-pane>
+          <el-tab-pane label="规格参数" name="fourth"></el-tab-pane>
+          <el-tab-pane label="SKU属性" name="fourth"></el-tab-pane>
+        </el-tabs>
+      </el-dialog>
+
     </div>
   </div>
 </template>
@@ -99,9 +142,13 @@
         return statusMap[status]
       }
     },
+    watch: {
+      // 监听分类变化动态查询品牌
+    },
     computed: {
       ...mapGetters(['permissions'])
     },
+
 
     mounted() {
       this.getList()

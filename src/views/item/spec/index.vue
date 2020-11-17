@@ -20,31 +20,14 @@
           </div>
         </el-col>
         <el-col :span="span">
-<!--          <el-row>-->
-<!--            &lt;!&ndash;查询条件表格&ndash;&gt;-->
-<!--            <el-form :model="searchForm" :inline="true">-->
-<!--              <el-form-item label="规格名称">-->
-<!--                <el-input v-model="searchForm.name" placeholder="规格名称">-->
-<!--                </el-input>-->
-<!--              </el-form-item>-->
-<!--              <el-form-item>-->
-<!--                <el-button type="primary" @click="getSpecPage">查询</el-button>-->
-<!--                <el-button @click="reset">重置</el-button>-->
-<!--              </el-form-item>-->
-<!--            </el-form>-->
-<!--          </el-row>-->
           <el-row>
-            <el-button type="primary" icon="el-icon-plus" size="small" @click="handleAddSpecData">添加数据</el-button>
-            <el-button icon="el-icon-delete" size="small">批量删除</el-button>
-
             <el-button icon="el-icon-refresh" size="small">刷新</el-button>
           </el-row>
 <!--          <el-alert type="info" class="alert-tip" show-icon :closable="false" title=" 当前选择：">-->
-
 <!--            <span class="select-title">{{selectKey.length}}</span>-->
 <!--            <a class="select-clear" v-if="editTitle" @click="cancelEdit">清空</a>-->
 <!--          </el-alert>-->
-          <el-table :data="specData" border style="width: 100%" v-loading="loading">
+          <el-table :data="specData" border style="width: 100%" v-loading="loading" v-if="!showAddButton">
             <el-table-column align="center" prop="id" label="id" width="80">
             </el-table-column>
             <el-table-column align="center" prop="name" label="分类" width="180">
@@ -63,6 +46,7 @@
               </template>
             </el-table-column>
           </el-table>
+          <el-button type="primary" icon="el-icon-plus" size="small" @click="handleAddSpecData">添加分组</el-button>
           <div class="footer" v-loading="loading">
             <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page.sync="searchForm.current" :page-size="searchForm.size" :total="searchForm.total" :page-sizes="[10, 40, 80, 100]" layout="total, sizes, prev, pager, next, jumper"></el-pagination>
           </div>
@@ -121,7 +105,9 @@ export default {
 
   components: {},
 
-  computed: {},
+  computed: {
+    showAddButton: this.specData== undefined || this.specData.length <= 0
+  },
 
   mounted() {
     this.getCategory()
@@ -214,6 +200,7 @@ export default {
 
     //在该分类下添加规格参数
     handleAddSpecData() {
+
 
     },
 
