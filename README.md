@@ -26,9 +26,15 @@ npm run build
 
 项目启动报错可能性较大 卸载 然后npm install node-sass
 
+表单验证一定要填写prop
 
+```
+<el-form-item label="物流单号" prop="logisticsOrderNo">
+  <el-input class="w347" v-model="form.data.logisticsOrderNo"></el-input>
+</el-form-item>
+```
 
-
+注意await和async的使用
 
 ### axios
 
@@ -99,8 +105,13 @@ img src标签不能直接设置绝对路径，只能使用本前端项目的相�
 
 ~~~
 npm uninstall element-ui
-npm install element-ui@2.6.3 -S
-main.js 中 import 'element-ui/lib/theme-chalk/index.css'
-npm rebuild node-sass
+npm install element-ui -S
+~~~
+
+升级node-sass
+
+~~~
+npm uninstall node-sass
+cnpm i -g node-sass
 ~~~
 
