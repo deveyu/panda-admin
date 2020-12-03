@@ -28,17 +28,14 @@
       </el-table-column>
       <el-table-column align="center" prop="letter" label="首字母">
       </el-table-column>
-      <el-table-column align="center" label="创建时间">
-        <template slot-scope="scope">
-          <span>{{scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
-        </template>
+      <el-table-column align="center" label="创建时间" prop="createTime" :formatter="dateFormat">
       </el-table-column>
 
       <el-table-column align="center" label="操作" width="180" v-if="item_brand_update  || item_brand_delete ">
         <template slot-scope="scope">
-          <el-button v-if="item_brand_update" size="mini" type="primary" @click="handleEdit(scope.row)">编辑
+          <el-button v-if="item_brand_update" size="mini" type="text" @click="handleEdit(scope.row)">编辑
           </el-button>
-          <el-button v-if="item_brand_delete" size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+          <el-button v-if="item_brand_delete" size="mini" type="text" @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -102,6 +99,7 @@
   import { uploadImage } from '@/api/brand'
   import { mapGetters } from 'vuex'
   import Cascader from '@/components/Cascader'
+  import moment from "moment";
 
 
 
@@ -428,6 +426,14 @@
         const newStr = str.replace(reg, newKey)
         return JSON.parse(newStr)
       },
+      // 其他通用方法
+      dateFormat(row, column) {
+        const date = row[column.property]
+        if (!date) {
+          return ''
+        }
+        return moment(date).format('YYYY-MM-DD HH:mm:ss')
+      }
 
 
     }

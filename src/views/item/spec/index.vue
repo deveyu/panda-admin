@@ -7,9 +7,6 @@
             <span class="select-title">{{chooseCategoryName}}</span>
             <a class="select-clear" v-if="chooseCategoryName" @click="cancelCategoryChoose">取消选择</a>
           </el-alert>
-          <!--          <el-input v-model="topDesc" placeholder="输入分类名称" clearable>-->
-          <!--            <el-button slot="append" icon="el-icon-search" @click=""></el-button>-->
-          <!--          </el-input>-->
           <div class="tree-bar">
             <el-tree ref="tree" :highlight-current="highlight" :data="categoryTreeData" :props="defaultProps"
                      @node-click="handleNodeClick"></el-tree>
@@ -21,19 +18,19 @@
           </div>
         </el-col>
         <el-col :span="span">
-          <!--          <el-row>-->
-          <!--            &lt;!&ndash;查询条件表格&ndash;&gt;-->
-          <!--            <el-form :model="searchForm" :inline="true">-->
-          <!--              <el-form-item label="规格名称">-->
-          <!--                <el-input v-model="searchForm.name" placeholder="规格名称">-->
-          <!--                </el-input>-->
-          <!--              </el-form-item>-->
-          <!--              <el-form-item>-->
-          <!--                <el-button type="primary" @click="getSpecPage">查询</el-button>-->
-          <!--                <el-button @click="reset">重置</el-button>-->
-          <!--              </el-form-item>-->
-          <!--            </el-form>-->
-          <!--          </el-row>-->
+<!--                    <el-row>-->
+<!--                      &lt;!&ndash;查询条件表格&ndash;&gt;-->
+<!--                      <el-form :model="searchForm" :inline="true">-->
+<!--                        <el-form-item label="规格名称">-->
+<!--                          <el-input v-model="searchForm.name" placeholder="规格名称">-->
+<!--                          </el-input>-->
+<!--                        </el-form-item>-->
+<!--                        <el-form-item>-->
+<!--                          <el-button type="primary" @click="getSpecPage">查询</el-button>-->
+<!--                          <el-button @click="reset">重置</el-button>-->
+<!--                        </el-form-item>-->
+<!--                      </el-form>-->
+<!--                    </el-row>-->
           <el-row>
             <el-button type="primary" icon="el-icon-plus" size="small" @click="handleAddSpecData">添加数据</el-button>
             <el-button icon="el-icon-delete" size="small">批量删除</el-button>
@@ -50,10 +47,7 @@
             </el-table-column>
             <el-table-column align="center" prop="name" label="分类" width="180">
             </el-table-column>
-            <el-table-column align="center" label="创建时间" width="180">
-              <template slot-scope="scope">
-                <span>{{scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
-              </template>
+            <el-table-column align="center" label="创建时间" width="180" prop="createTime" :formatter="dateFormat">
             </el-table-column>
             <el-table-column align="center" fixed="right" label="操作">
               <template slot-scope="scope">
@@ -78,33 +72,6 @@
         </el-col>
       </el-row>
     </el-card>
-    <el-drawer
-      title="规格参数"
-      :before-close="handleDrawerClose"
-      :visible.sync="drawer"
-      :direction="direction"
-      custom-class="demo-drawer"
-      ref="drawer"
-    >
-      <div class="demo-drawer__content">
-        <el-form :model="form">
-          <el-form-item label="活动名称" :label-width="formLabelWidth">
-            <el-input v-model="form.name" autocomplete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="活动区域" :label-width="formLabelWidth">
-            <el-select v-model="form.region" placeholder="请选择活动区域">
-              <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option>
-            </el-select>
-          </el-form-item>
-        </el-form>
-        <div class="demo-drawer__footer">
-          <el-button @click="cancelForm">取 消</el-button>
-          <el-button type="primary" @click="$refs.drawer.closeDrawer()" :loading="loading">{{ loading ? '提交中 ...' : '确定' }}
-          </el-button>
-        </div>
-      </div>
-    </el-drawer>
 
 
   </div>
@@ -114,6 +81,7 @@
   import { getAllCategory } from '@/api/category'
   import { fetchList } from '@/api/spec'
   import { mapGetters } from 'vuex'
+  import moment from "moment";
 
   export default {
     data() {
@@ -216,7 +184,7 @@
         ).then(() => {
           delObj(row.userId)
             .then(() => {
-              this.getList()
+              this.getData()
               this.$notify({
                 title: '成功',
                 message: '删除成功',
@@ -283,11 +251,11 @@
       // 分页
       handleSizeChange(val) {
         this.listQuery.size = val
-        this.getList()
+        this.getData()
       },
       handleCurrentChange(val) {
         this.listQuery.current = val
-        this.getList()
+        this.getData()
       },
       // 用于伸缩card
       changeExpand() {
@@ -325,6 +293,14 @@
         this.loading = false
         this.dialog = false
         clearTimeout(this.timer)
+      },
+      // 其他通用方法
+      dateFormat(row, column) {
+        const date = row[column.property]
+        if (!date) {
+          return ''
+        }
+        return moment(date).format('YYYY-MM-DD HH:mm:ss')
       }
 
     }

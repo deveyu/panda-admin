@@ -14,10 +14,8 @@
           <span>{{scope.row.id}}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="创建时间">
-        <template slot-scope="scope">
-          <span>{{scope.row.createTime | parseTime('{y}-{m}-{d} {h}:{i}')}}</span>
-        </template>
+      <el-table-column align="center" label="创建时间" prop="createTime" :formatter="dateFormat">
+
       </el-table-column>
       <el-table-column align="center" label="操作" v-if="item_category_update  || item_category_delete ">
         <template slot-scope="scope">
@@ -51,6 +49,7 @@
   import treeTable from '@/components/TreeTable'
   import {delObj, getObj, addObj, putObj, getAllCategory} from '@/api/category'
   import {mapGetters} from 'vuex'
+  import moment from "moment";
 
   export default {
     components: {
@@ -138,7 +137,7 @@
           if (valid) {
             addObj(this.form).then(() => {
               this.dialogFormVisible = false
-              this.getList()
+              this.getData()
               this.$notify({
                 title: '成功',
                 message: '创建成功',
@@ -169,7 +168,7 @@
             this.dialogFormVisible = false
             putObj(this.form).then(() => {
               this.dialogFormVisible = false
-              this.getList()
+              this.getData()
               this.$notify({
                 title: '成功',
                 message: '修改成功',
@@ -234,15 +233,15 @@
 
       handleSearch() {
         this.listQuery.current = 1
-        this.getList()
+        this.getData()
       },
       handleSizeChange(val) {
         this.listQuery.size = val
-        this.getList()
+        this.getData()
       },
       handleCurrentChange(val) {
         this.listQuery.current = val
-        this.getList()
+        this.getData()
       },
 
       async openEditDialog(id) {
@@ -305,6 +304,14 @@
         this.dialog.data.icon = null
         this.dialog.data.sort = 1
         this.dialog.data.parentId = -1
+      },
+      // 其他通用方法
+      dateFormat(row, column) {
+        const date = row[column.property]
+        if (!date) {
+          return ''
+        }
+        return moment(date).format('YYYY-MM-DD HH:mm:ss')
       }
     }
   }
